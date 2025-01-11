@@ -1,0 +1,67 @@
+services:
+  api:
+    build: ./arrivals_api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./arrivals_api:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=arrivals_write_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgrespassword
+      - MONGO_HOST=mongo
+      - MONGO_PORT=27017
+      - MONGO_DB=arrivals_read_db
+    networks:
+      - arrivals-network
+    depends_on:
+      - postgres
+      - mongo
+
+  frontend:
+    build: ./arrivals_frontend
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./arrivals_frontend:/src
+    environment:
+      - NODE_ENV=development
+    networks:
+      - arrivals-network
+
+  postgres:
+    image: postgres:16
+    container_name: arrivals_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: arrivals_write_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - arrivals-network
+
+  mongo:
+    image: mongo:6
+    container_name: arrivals_mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: arrivals_read_db
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - arrivals-network
+
+networks:
+  arrivals-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  mongo_data:
