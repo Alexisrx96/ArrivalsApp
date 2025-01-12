@@ -1,8 +1,9 @@
 from typing import Generic, List, Type, TypeVar
 
-from app.core.database import get_db
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+
+from app.core.write_db import get_db
 
 T = TypeVar("T")
 
@@ -56,6 +57,9 @@ class BaseRepository(Generic[T]):
         parts = err_msg.split(".")
         if len(parts) >= 2:
             table, column = parts[-2], parts[-1]
-            return f"Duplicate entry for {column} in {table}. Please choose a different value."
+            return (
+                f"Duplicate entry for {column} in {table}."
+                "Please choose a different value."
+            )
         else:
             return "An error occurred while processing your request."
