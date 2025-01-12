@@ -6,15 +6,24 @@ load_dotenv()
 
 
 class Settings(BaseSettings):
-    database_url: str = Field(
-        json_schema_extra={"env": "DATABASE_URL"},
+    write_db_url: str = Field(
+        json_schema_extra={"env": "WRITE_DB_URL"},
     )
+
+    read_db_url: str = Field(
+        json_schema_extra={"env": "READ_DB_URL"},
+    )
+    read_db_name: str = Field(
+        json_schema_extra={"env": "READ_DB_NAME"},
+    )
+
     initial_admin_username: str = Field(
         json_schema_extra={"env": "INITIAL_ADMIN_USERNAME"},
     )
     initial_admin_password: str = Field(
-        json_schema_extra={"env": "INITIAL_ADMIN_PASSWORD"}
+        json_schema_extra={"env": "INITIAL_ADMIN_PASSWORD"},
     )
+
     secret_key: str = Field(
         json_schema_extra={"env": "SECRET_KEY"},
     )
