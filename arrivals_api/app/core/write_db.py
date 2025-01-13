@@ -1,3 +1,4 @@
+# flake8: noqa: F401
 from passlib.context import CryptContext
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, declarative_base, sessionmaker
