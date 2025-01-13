@@ -1,24 +1,22 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 
-from app.core.config import settings
-
-app = FastAPI()
-
-
-@app.get("/")
-def read_root():
-    return {"message": "Hello, World!"}
+from app.core.write_db import init_db
+from app.features.users.api import auth_router, user_router
 
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str = None):
-    return {"item_id": item_id, "q": q}
+@asynccontextmanager
+async def lifespan(*args, **kwargs):
+    init_db()
+    yield
 
 
-@app.get("/settings")
-def read_settings():
-    return settings
+app = FastAPI(lifespan=lifespan)
 
+
+app.include_router(user_router, prefix="/users", tags=["users"])
+app.include_router(auth_router, tags=["auth"])
 
 if __name__ == "__main__":
     import uvicorn
