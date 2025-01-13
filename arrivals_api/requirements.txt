@@ -7,3 +7,6 @@ mediatr
 passlib[bcrypt]
 python-dotenv
 pydantic-settings
+python-jose[cryptography]
+psycopg2-binary
+pymongo

@@ -12,8 +12,15 @@ bcrypt = "==4.0.1"
 passlib = {extras = ["bcrypt"], version = "*"}
 pydantic-settings = "*"
 pytest-dotenv = "*"
+pymongo = {extras = ["srv"], version = "*"}
+python-jose = {extras = ["cryptography"], version = "*"}
+psycopg2 = "*"
+black = "*"
 
 [dev-packages]
+isort = "*"
+black = {extras = ["d"], version = "*"}
+flake8 = "*"
 
 [requires]
 python_version = "3.12"
