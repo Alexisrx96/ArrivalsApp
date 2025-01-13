@@ -1,4 +1,4 @@
-from typing import List, Optional, Type, TypeVar, Union
+from typing import Generic, List, Optional, Type, TypeVar, Union
 
 from pydantic import BaseModel, ValidationError
 from pymongo.collection import Collection
@@ -10,7 +10,7 @@ from app.core.read_db import connect_to_mongo, mongodb
 T = TypeVar("T", bound=BaseModel)
 
 
-class ReadRepository:
+class ReadRepository(Generic[T]):
     def __init__(self, collection_name: str, model: Type[T]):
         # Ensure the database connection is established
         if not mongodb.database:
