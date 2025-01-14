@@ -10,8 +10,12 @@ from app.core.config import settings
 if TYPE_CHECKING:
     from app.features.users.models import User
 
-from app.features.users.write_repo import UserRepository
+from fastapi import HTTPException, Request, status
+from starlette.middleware.base import BaseHTTPMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.security import OAuth2PasswordBearer
 
+from app.features.users.write_repo import UserRepository
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

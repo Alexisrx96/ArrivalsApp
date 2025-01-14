@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 
 from app.features.users.auth import AuthService, hash_password
 from app.features.users.models import User as UserModel
@@ -48,20 +49,9 @@ def get_user(
     return db_user
 
 
-@user_router.get("mongo/{username}", response_model=UserOut)
-def get_mongo_user(
-    username: str,
-    mongo: MongoUser = Depends(MongoUser),
-):
-    db_user = mongo.get_user_by_username(username)
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return db_user
-
-
 @auth_router.post("/login")
 def login(
-    user: UserLogin,
+    user: OAuth2PasswordRequestForm = Depends(),
     auth_service: AuthService = Depends(AuthService),
 ):
     db_user = auth_service.authenticate_user(user.username, user.password)

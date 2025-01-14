@@ -31,6 +31,7 @@ from app.features.visits.write_repo import (
     VisitRepository,
     VisitTypeRepository,
 )
+from app.core.middleware import oauth2_scheme
 
 
 # Controller
@@ -54,18 +55,26 @@ class ReportController:
             self.get_unusual_processing_times
         )
 
-    async def get_processing_time_by_visit_type(self):
+    async def get_processing_time_by_visit_type(
+        self,
+        token: str = Depends(oauth2_scheme),
+    ):
         return await self.mediator.send_async(
             GetProcessingTimeByVisitTypeQuery()
         )
 
-    async def get_processing_time_by_destination(self):
+    async def get_processing_time_by_destination(
+        self,
+        token: str = Depends(oauth2_scheme),
+    ):
         return await self.mediator.send_async(
             GetProcessingTimeByDestinationQuery()
         )
 
     async def get_unusual_processing_times(
-        self, threshold: Threshold = Depends()
+        self,
+        threshold: Threshold = Depends(),
+        token: str = Depends(oauth2_scheme),
     ):
         return await self.mediator.send_async(
             GetUnusualProcessingTimesQuery(threshold)
@@ -95,12 +104,14 @@ class VisitController:
     async def create_visit(
         self,
         visit: VisitCreate,
+        token: str = Depends(oauth2_scheme),
     ) -> VisitOut:
         return await self.mediator.send_async(CreateVisitCommand(visit))
 
     async def list_visits(
         self,
         query_params: VisitQueryParams = Depends(),
+        token: str = Depends(oauth2_scheme),
     ) -> List[VisitOut]:
         # Build filters dictionary based on query parameters
         filters = {}
@@ -130,6 +141,7 @@ class VisitController:
         self,
         visit_id: int,
         repo: VisitRepository = Depends(VisitRepository),
+        token: str = Depends(oauth2_scheme),
     ):
         visit = repo.get(visit_id)
         if not visit:
@@ -141,6 +153,7 @@ class VisitController:
         visit_id: int,
         visit: VisitCreate,
         repo: VisitRepository = Depends(VisitRepository),
+        token: str = Depends(oauth2_scheme),
     ):
         existing_visit = repo.get(visit_id)
         if not existing_visit:
@@ -152,6 +165,7 @@ class VisitController:
         self,
         visit_id: int,
         repo: VisitRepository = Depends(VisitRepository),
+        token: str = Depends(oauth2_scheme),
     ):
         existing_visit = repo.get(visit_id)
         if not existing_visit:
@@ -185,7 +199,11 @@ class VisitTypeController:
             self.delete_visit_type
         )
 
-    async def create_visit_type(self, visit_type: VisitTypeCreate):
+    async def create_visit_type(
+        self,
+        visit_type: VisitTypeCreate,
+        token: str = Depends(oauth2_scheme),
+    ):
         return await self.mediator.send_async(
             CreateVisitTypeCommand(visit_type)
         )
@@ -193,6 +211,7 @@ class VisitTypeController:
     async def list_visit_types(
         self,
         repo: VisitTypeRepository = Depends(VisitTypeRepository),
+        token: str = Depends(oauth2_scheme),
     ):
         visit_types = repo.get_all()
         return visit_types
@@ -201,6 +220,7 @@ class VisitTypeController:
         self,
         visit_type_id: int,
         repo: VisitTypeRepository = Depends(VisitTypeRepository),
+        token: str = Depends(oauth2_scheme),
     ):
         visit_type = repo.get(visit_type_id)
         if not visit_type:
@@ -212,6 +232,7 @@ class VisitTypeController:
         visit_type_id: int,
         visit_type: VisitTypeCreate,
         repo: VisitTypeRepository = Depends(VisitTypeRepository),
+        token: str = Depends(oauth2_scheme),
     ):
         existing_visit_type = repo.get(visit_type_id)
         if not existing_visit_type:
@@ -225,6 +246,7 @@ class VisitTypeController:
         self,
         visit_type_id: int,
         repo: VisitTypeRepository = Depends(VisitTypeRepository),
+        token: str = Depends(oauth2_scheme),
     ):
         visit_type = repo.get(visit_type_id)
         if not visit_type:
@@ -262,6 +284,7 @@ class DestinationController:
         self,
         destination: DestinationCreate,
         repo: DestinationRepository = Depends(DestinationRepository),
+        token: str = Depends(oauth2_scheme),
     ):
         new_destination = repo.create(Destination(**destination.model_dump()))
         return new_destination
@@ -269,6 +292,7 @@ class DestinationController:
     async def list_destinations(
         self,
         repo: DestinationRepository = Depends(DestinationRepository),
+        token: str = Depends(oauth2_scheme),
     ):
         destinations = repo.get_all()
         return destinations
@@ -277,6 +301,7 @@ class DestinationController:
         self,
         destination_id: int,
         repo: DestinationRepository = Depends(DestinationRepository),
+        token: str = Depends(oauth2_scheme),
     ):
         destination = repo.get(destination_id)
         if not destination:
@@ -290,6 +315,7 @@ class DestinationController:
         destination_id: int,
         destination: DestinationCreate,
         repo: DestinationRepository = Depends(DestinationRepository),
+        token: str = Depends(oauth2_scheme),
     ):
         existing_destination = repo.get(destination_id)
         if not existing_destination:
@@ -305,6 +331,7 @@ class DestinationController:
         self,
         destination_id: int,
         repo: DestinationRepository = Depends(DestinationRepository),
+        token: str = Depends(oauth2_scheme),
     ):
         destination = repo.get(destination_id)
         if not destination:
