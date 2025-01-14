@@ -9,18 +9,18 @@ from app.core.write_db import Base
 class Visit(Base):
     __tablename__ = "visits"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    visitor = Column(String, nullable=False)
-    visit_type_id = Column(
+    id: int = Column(Integer, primary_key=True, autoincrement=True)
+    visitor: str = Column(String, nullable=False)
+    visit_type_id: int = Column(
         Integer, ForeignKey("visit_types.id"), nullable=False
     )
-    destination_id = Column(
+    destination_id: int = Column(
         Integer, ForeignKey("destinations.id"), nullable=False
     )
-    entry_time = Column(
+    entry_time: datetime = Column(
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
-    exit_time = Column(DateTime, nullable=True)
+    exit_time: datetime = Column(DateTime, nullable=True)
 
     # Relationships
     visit_type = relationship("VisitType", back_populates="visits")
