@@ -11,6 +11,13 @@ T = TypeVar("T")
 class BaseRepository(Generic[T]):
     _instance = None
 
+    @classmethod
+    def instance(cls):
+        if cls._instance is None:
+            db = next(get_db())
+            cls._instance = cls(db)
+        return cls._instance
+
     def __init__(self, model: Type[T], db: Session):
         self.model = model
         self.db = db
