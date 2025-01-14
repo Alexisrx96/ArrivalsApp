@@ -16,6 +16,9 @@ pymongo = {extras = ["srv"], version = "*"}
 python-jose = {extras = ["cryptography"], version = "*"}
 psycopg2 = "*"
 black = "*"
+faker = "*"
+asyncpg = "*"
+python-multipart = "*"
 
 [dev-packages]
 isort = "*"
