@@ -33,6 +33,16 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = Field(
         json_schema_extra={"env": "ACCESS_TOKEN_EXPIRE_MINUTES"},
     )
+    enable_data_generation: bool = Field(
+        json_schema_extra={"env": "ENABLE_DATA_GENERATION"},
+    )
+    total_records: int = Field(
+        json_schema_extra={"env": "TOTAL_RECORDS"},
+    )
+
+    batch_size: int = Field(
+        json_schema_extra={"env": "BATCH_SIZE"},
+    )
 
     class Config:
         env_file = ".env"
