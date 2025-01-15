@@ -19,6 +19,7 @@ black = "*"
 faker = "*"
 asyncpg = "*"
 python-multipart = "*"
+pydantic = {extras = ["email"], version = "*"}
 
 [dev-packages]
 isort = "*"
