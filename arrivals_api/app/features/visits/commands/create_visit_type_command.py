@@ -22,5 +22,5 @@ class CreateVisitTypeCommandHandler:
         visit_type = VisitType(name=request.visit_type.name)
         self.visit_type_repository.create(visit_type)
 
-        self.read_repository.insert_one(visit_type.__dict__)
+        self.read_repository.insert_one(vars(visit_type))
         return visit_type

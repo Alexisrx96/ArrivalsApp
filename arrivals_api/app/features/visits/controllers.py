@@ -3,6 +3,7 @@ from typing import Dict, List, Union
 from fastapi import APIRouter, Depends, HTTPException
 from mediatr import Mediator
 
+from app.core.secure import oauth2_scheme
 from app.features.visits.commands.create_visit_command import (
     CreateVisitCommand,
 )
@@ -10,7 +11,7 @@ from app.features.visits.commands.create_visit_type_command import (
     CreateVisitTypeCommand,
 )
 from app.features.visits.models import Destination
-from app.features.visits.queries.get_visit_querie import (
+from app.features.visits.queries.get_visit_query import (
     GetProcessingTimeByDestinationQuery,
     GetProcessingTimeByVisitTypeQuery,
     GetUnusualProcessingTimesQuery,
@@ -31,7 +32,6 @@ from app.features.visits.write_repo import (
     VisitRepository,
     VisitTypeRepository,
 )
-from app.core.middleware import oauth2_scheme
 
 
 # Controller
@@ -45,9 +45,10 @@ class ReportController:
         self._set_routes()
 
     def _set_routes(self):
-        self.router.get("/processing-time-by-visit-type")(
-            self.get_processing_time_by_visit_type
-        )
+        self.router.get(
+            "/processing-time-by-visit-type",
+            response_model=List[Dict[str, Union[str, float, int]]],
+        )(self.get_processing_time_by_visit_type)
         self.router.get("/processing-time-by-destination")(
             self.get_processing_time_by_destination
         )

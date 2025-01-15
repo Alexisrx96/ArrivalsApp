@@ -146,11 +146,11 @@ class VisitReadRepository(ReadRepository):
                     "processing_time_minutes": {
                         "$divide": [
                             {"$subtract": ["$exit_time", "$entry_time"]},
-                            60000,  # Convert milliseconds to minutes
+                            60000,
                         ]
                     }
                 }
-            },  # Calculate processing time in minutes
+            },
             {
                 "$match": {
                     "$or": [
@@ -158,7 +158,7 @@ class VisitReadRepository(ReadRepository):
                         {"processing_time_minutes": {"$gt": max_threshold}},
                     ]
                 }
-            },  # Filter for unusual processing times
+            },
             {
                 "$project": {
                     "_id": 0,  # Exclude the MongoDB _id field

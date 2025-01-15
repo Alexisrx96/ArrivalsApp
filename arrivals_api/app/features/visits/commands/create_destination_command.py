@@ -23,6 +23,5 @@ class CreateDestinationCommandHandler:
             location=request.destination.location,
         )
         self.destination_repository.create(destination)
-
-        self.read_repository.insert_one(destination.__dict__)
+        self.read_repository.insert_one(vars(destination))
         return destination

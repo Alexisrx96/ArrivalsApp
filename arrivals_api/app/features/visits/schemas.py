@@ -1,6 +1,7 @@
-from pydantic import BaseModel, Field
-from datetime import date, datetime
+from datetime import datetime
 from typing import Optional
+
+from pydantic import BaseModel, Field, model_validator
 
 
 class PaginationParams:
@@ -48,6 +49,16 @@ class VisitCreate(BaseModel):
     entry_time: datetime
     exit_time: Optional[datetime] = None
 
+    @model_validator(mode="after")
+    def validate_exit_time(self):
+        entry_time = self.entry_time
+        exit_time = self.exit_time
+
+        if exit_time and exit_time < entry_time:
+            raise ValueError("exit_time must be after entry_time")
+
+        return self
+
 
 class VisitOut(BaseModel):
     id: int
@@ -77,7 +88,18 @@ class VisitQueryParams(BaseModel, PaginationParams):
         None, description="Filter visits up to this date (entry_time)"
     )
 
+    @model_validator(mode="after")
+    def validate_dates(self):
+        start_date = self.start_date
+        end_date = self.end_date
 
+        if start_date and end_date and start_date > end_date:
+            raise ValueError("start_date must be before end_date")
+
+        return self
+
+
+# Threshold Schema
 class Threshold(BaseModel, PaginationParams):
     low: float
     high: float

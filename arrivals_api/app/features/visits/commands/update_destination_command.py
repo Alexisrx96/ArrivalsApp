@@ -3,7 +3,7 @@ from mediatr import Mediator
 
 from app.features.visits.models import Destination
 from app.features.visits.read_repo import DestinationReadRepository
-from app.features.visits.schemas import DestinationCreate
+from app.features.visits.schemas import DestinationCreate, DestinationOut
 from app.features.visits.write_repo import DestinationRepository
 
 
@@ -37,8 +37,8 @@ class UpdateDestinationCommandHandler:
         self.destination_repository.update(existing_destination)
 
         # Update read repository
-        self.read_repository.insert_one(
+        self.read_repository.update_one(
             {"id": request.destination_id},
-            {"$set": existing_destination.__dict__},
+            DestinationOut.model_validate(existing_destination).model_dump(),
         )
         return existing_destination

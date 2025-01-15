@@ -44,8 +44,8 @@ class CreateVisitCommandHandler:
         document = {
             "id": visit.id,
             "visitor": visit.visitor,
-            "visit_type": visit_type.__dict__ if visit_type else None,
-            "destination": destination.__dict__ if destination else None,
+            "visit_type": vars(visit_type) if visit_type else None,
+            "destination": vars(destination) if destination else None,
             "entry_time": visit.entry_time.isoformat(),
             "exit_time": (
                 visit.exit_time.isoformat() if visit.exit_time else None
