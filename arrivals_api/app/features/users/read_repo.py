@@ -6,7 +6,7 @@ from app.core.read_base_repository import ReadRepository
 from app.features.users.schemas import UserOut
 
 
-class MongoUser(ReadRepository[UserOut]):
+class UserReadRepository(ReadRepository[UserOut]):
     def __init__(self):
         super().__init__("users", UserOut)
 
