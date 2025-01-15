@@ -21,17 +21,6 @@ services:
       - postgres
       - mongo
 
-  frontend:
-    build: ./arrivals_frontend
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./arrivals_frontend:/src
-    environment:
-      - NODE_ENV=development
-    networks:
-      - arrivals-network
-
   postgres:
     image: postgres:16
     container_name: arrivals_postgres
