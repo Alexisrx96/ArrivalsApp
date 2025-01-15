@@ -1,10 +1,27 @@
-from typing import Generic, List, Optional, Type, TypeVar, Union, Callable
+from functools import wraps
+import logging
+from typing import (
+    Any,
+    Callable,
+    Generic,
+    List,
+    Mapping,
+    Optional,
+    Type,
+    TypeVar,
+    Union,
+)
+
 from pydantic import BaseModel, ValidationError
 from pymongo.collection import Collection
 from pymongo.errors import PyMongoError
 from pymongo.results import DeleteResult, UpdateResult
 
 from app.core.read_db import connect_to_mongo, mongodb
+
+# Set up logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.ERROR)
 
 # Define a generic type for Pydantic models
 T = TypeVar("T", bound=BaseModel)
@@ -15,15 +32,16 @@ def handle_errors(func: Callable):
     Decorator to handle PyMongo errors and log exceptions.
     """
 
+    @wraps(func)
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except PyMongoError as e:
-            print(f"MongoDB error in {func.__name__}: {e}")
-            return None
+            logger.error(f"MongoDB error in {func.__name__}: {e}")
+            raise e
         except ValidationError as ve:
-            print(f"Validation error in {func.__name__}: {ve}")
-            return None
+            logger.error(f"Validation error in {func.__name__}: {ve}")
+            raise ve
 
     return wrapper
 
@@ -74,23 +92,23 @@ class ReadRepository(Generic[T]):
         return True
 
     @handle_errors
-    def update_one(self, _id: Union[int, str], data: dict) -> bool:
+    def update_one(self, filters: Mapping[str, Any], data: dict) -> bool:
         """
         Update a single document in the collection.
         """
-        validated_data = self.model(**data)  # Validate against the schema
+        validated_data = self.model(**data, partial=True)
         update_result: UpdateResult = self.collection.update_one(
-            {"_id": _id},
+            filters,
             {"$set": validated_data.model_dump()},
         )
         return update_result.modified_count > 0
 
     @handle_errors
-    def delete_by_id(self, _id: Union[int, str]) -> bool:
+    def delete_one(self, filters: Mapping[str, Any]) -> bool:
         """
         Delete a document by its ID.
         """
-        result: DeleteResult = self.collection.delete_one({"_id": _id})
+        result: DeleteResult = self.collection.delete_one(filters)
         return result.deleted_count > 0
 
     @handle_errors

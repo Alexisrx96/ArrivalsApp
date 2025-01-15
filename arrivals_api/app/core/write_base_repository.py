@@ -1,8 +1,10 @@
+import re
 from typing import Generic, List, Type, TypeVar
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.core.exceptions import BadRequestException
 from app.core.write_db import get_db
 
 T = TypeVar("T")
@@ -37,7 +39,7 @@ class BaseRepository(Generic[T]):
         except IntegrityError as e:
             self.db.rollback()
             self.refresh_db()
-            raise ValueError(self._parse_integrity_error(e))
+            raise BadRequestException(self._parse_integrity_error(e))
 
     def update(self, obj: T) -> T:
         try:
@@ -47,7 +49,7 @@ class BaseRepository(Generic[T]):
         except IntegrityError as e:
             self.db.rollback()
             self.refresh_db()
-            raise ValueError(self._parse_integrity_error(e))
+            raise BadRequestException(self._parse_integrity_error(e))
 
     def delete(self, id: int) -> None:
         obj = self.get(id)
@@ -58,15 +60,15 @@ class BaseRepository(Generic[T]):
         self.db = next(get_db())
 
     def _parse_integrity_error(self, error: IntegrityError) -> str:
+        # Extract the original error message
         orig_msg = str(error.orig)
         err_msg = orig_msg.split(":")[-1].replace("\n", "").strip()
 
-        parts = err_msg.split(".")
-        if len(parts) >= 2:
-            table, column = parts[-2], parts[-1]
+        if match := re.search(r"Key \((.*?)\)=\((.*?)\)", err_msg):
+            column, value = match.groups()
             return (
-                f"Duplicate entry for {column} in {table}."
-                "Please choose a different value."
+                f"Duplicated value: '{value}' already exists in the '{column}'"
+                " field. Please choose a different value."
             )
         else:
             return "An error occurred while processing your request."
