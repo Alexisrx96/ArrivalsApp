@@ -1,12 +1,14 @@
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Request
+from fastapi.responses import JSONResponse
 from mediatr import Mediator
 
-from app.core.middleware import AuthMiddleware
+from app.core.exceptions import ArrivalHTTPException
+from app.core.secure import AuthMiddleware
 from app.core.write_db import init_db
 from app.data_generator import initialize_data
-from app.features.users.api import auth_router, user_router
+from app.features.users.controllers import AuthController, UserController
 from app.features.users.auth import AuthService
 from app.features.visits.controllers import (
     DestinationController,
@@ -14,7 +16,7 @@ from app.features.visits.controllers import (
     VisitController,
     VisitTypeController,
 )
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordBearer
 from app.core.config import settings
 
 mediator = Mediator()
@@ -48,19 +50,28 @@ if settings.enable_data_generation:
         )
 
 
-app.add_middleware(AuthMiddleware, auth_service=AuthService)
+@app.exception_handler(ArrivalHTTPException)
+async def arrival_exception_handler(
+    request: Request, exc: ArrivalHTTPException
+):
+    return JSONResponse({"message": exc.message}, exc.status_code)
 
+
+app.add_middleware(AuthMiddleware, auth_service=AuthService())
+
+auth_controller = AuthController(mediator=mediator)
+user_controller = UserController(mediator=mediator)
 visit_controller = VisitController(mediator=mediator)
 visit_type_controller = VisitTypeController(mediator=mediator)
 destination_controller = DestinationController(mediator=mediator)
 report_controller = ReportController(mediator=mediator)
 
 
-app.include_router(auth_router, tags=["auth"])
+app.include_router(auth_controller.router, tags=["auth"])
 app.include_router(
     report_controller.router, prefix="/reports", tags=["reports"]
 )
-app.include_router(user_router, prefix="/users", tags=["users"])
+app.include_router(user_controller.router, prefix="/users", tags=["users"])
 app.include_router(
     visit_type_controller.router,
     prefix="/visit-types",
